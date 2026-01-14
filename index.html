@@ -756,7 +756,8 @@
           <label>Room Code</label>
           <input type="text" id="roomCodeInput" placeholder="Enter code..." maxlength="6" style="text-transform: uppercase;">
         </div>
-        <button class="lobby-btn btn-join" onclick="joinGame()">JOIN ROOM</button>
+        <button class="lobby-btn btn-join" id="joinBtn" onclick="joinGame()">JOIN ROOM</button>
+        <button class="lobby-btn" id="retryBtn" style="display:none; background: var(--text-purple);" onclick="retryJoin()">🔄 RETRY CONNECTION</button>
         <button class="lobby-btn" style="background: var(--border-silver);" onclick="showInitialPanel()">← BACK</button>
         <div class="connection-status" id="joinStatus"></div>
       </div>
@@ -933,25 +934,28 @@
       // Create peer with room code as ID
       peer = new Peer('ff-' + roomCode, {
         debug: 2,
+        host: '0.peerjs.com',
+        port: 443,
+        secure: true,
         config: {
           iceServers: [
             { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
             { urls: 'stun:global.stun.twilio.com:3478' },
+            { urls: 'stun:stun.relay.metered.ca:80' },
             { 
-              urls: 'turn:openrelay.metered.ca:80',
-              username: 'openrelayproject',
-              credential: 'openrelayproject'
+              urls: 'turn:standard.relay.metered.ca:80',
+              username: 'e8dd65b92f4c1be0ff8b1620',
+              credential: 'uWdWNmkhvyqTEuGQ'
             },
             {
-              urls: 'turn:openrelay.metered.ca:443',
-              username: 'openrelayproject',
-              credential: 'openrelayproject'
+              urls: 'turn:standard.relay.metered.ca:443',
+              username: 'e8dd65b92f4c1be0ff8b1620',
+              credential: 'uWdWNmkhvyqTEuGQ'
             },
             {
-              urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-              username: 'openrelayproject',
-              credential: 'openrelayproject'
+              urls: 'turn:standard.relay.metered.ca:443?transport=tcp',
+              username: 'e8dd65b92f4c1be0ff8b1620',
+              credential: 'uWdWNmkhvyqTEuGQ'
             }
           ]
         }
@@ -1158,25 +1162,28 @@
 
       peer = new Peer({
         debug: 2,
+        host: '0.peerjs.com',
+        port: 443,
+        secure: true,
         config: {
           iceServers: [
             { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
             { urls: 'stun:global.stun.twilio.com:3478' },
+            { urls: 'stun:stun.relay.metered.ca:80' },
             { 
-              urls: 'turn:openrelay.metered.ca:80',
-              username: 'openrelayproject',
-              credential: 'openrelayproject'
+              urls: 'turn:standard.relay.metered.ca:80',
+              username: 'e8dd65b92f4c1be0ff8b1620',
+              credential: 'uWdWNmkhvyqTEuGQ'
             },
             {
-              urls: 'turn:openrelay.metered.ca:443',
-              username: 'openrelayproject',
-              credential: 'openrelayproject'
+              urls: 'turn:standard.relay.metered.ca:443',
+              username: 'e8dd65b92f4c1be0ff8b1620',
+              credential: 'uWdWNmkhvyqTEuGQ'
             },
             {
-              urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-              username: 'openrelayproject',
-              credential: 'openrelayproject'
+              urls: 'turn:standard.relay.metered.ca:443?transport=tcp',
+              username: 'e8dd65b92f4c1be0ff8b1620',
+              credential: 'uWdWNmkhvyqTEuGQ'
             }
           ]
         }
@@ -1185,6 +1192,7 @@
       peer.on('open', (id) => {
         console.log('My peer ID:', id);
         document.getElementById('joinStatus').textContent = '🔄 Connecting to room ' + roomCode + '...';
+        document.getElementById('joinStatus').className = 'connection-status status-connecting';
         
         hostConnection = peer.connect('ff-' + roomCode, { 
           reliable: true,
@@ -1198,19 +1206,26 @@
               const state = hostConnection.peerConnection.iceConnectionState;
               console.log('ICE state:', state);
               if (state === 'checking') {
-                document.getElementById('joinStatus').textContent = '🔄 Establishing connection...';
+                document.getElementById('joinStatus').textContent = '🔄 Found host! Establishing secure connection...';
               } else if (state === 'connected' || state === 'completed') {
-                document.getElementById('joinStatus').textContent = '🔄 Almost there...';
+                document.getElementById('joinStatus').textContent = '🔄 Connected! Joining game...';
+              } else if (state === 'failed') {
+                document.getElementById('joinStatus').textContent = '❌ Connection failed. Try clicking Retry.';
+                document.getElementById('joinStatus').className = 'connection-status status-error';
+                document.getElementById('retryBtn').style.display = 'block';
+                document.getElementById('joinBtn').style.display = 'none';
               }
             };
           }
-        }, 100);
+        }, 500);
 
         // Connection timeout
         const connectionTimeout = setTimeout(() => {
           if (!hostConnection || !hostConnection.open) {
-            document.getElementById('joinStatus').textContent = '❌ Connection timed out. Try refreshing both pages and try again.';
+            document.getElementById('joinStatus').textContent = '❌ Connection timed out. Make sure host is waiting, then retry.';
             document.getElementById('joinStatus').className = 'connection-status status-error';
+            document.getElementById('retryBtn').style.display = 'block';
+            document.getElementById('joinBtn').style.display = 'none';
           }
         }, 15000);
 
@@ -1241,25 +1256,47 @@
         hostConnection.on('error', (err) => {
           clearTimeout(connectionTimeout);
           console.error('Connection error:', err);
-          document.getElementById('joinStatus').textContent = '❌ Connection failed: ' + err;
+          document.getElementById('joinStatus').textContent = '❌ Connection failed. Click Retry to try again.';
           document.getElementById('joinStatus').className = 'connection-status status-error';
+          document.getElementById('retryBtn').style.display = 'block';
+          document.getElementById('joinBtn').style.display = 'none';
         });
       });
 
       peer.on('error', (err) => {
         console.error('Peer error:', err);
         if (err.type === 'peer-unavailable') {
-          document.getElementById('joinStatus').textContent = '❌ Room not found. Check the code and make sure host is waiting!';
+          document.getElementById('joinStatus').textContent = '❌ Room "' + roomCode + '" not found. Check the code!';
         } else {
-          document.getElementById('joinStatus').textContent = '❌ Error: ' + err.type;
+          document.getElementById('joinStatus').textContent = '❌ Error: ' + err.type + '. Click Retry.';
         }
         document.getElementById('joinStatus').className = 'connection-status status-error';
+        document.getElementById('retryBtn').style.display = 'block';
+        document.getElementById('joinBtn').style.display = 'none';
       });
 
       peer.on('disconnected', () => {
         console.log('Disconnected from server, reconnecting...');
         peer.reconnect();
       });
+    }
+
+    function retryJoin() {
+      // Clean up old connection
+      if (peer) {
+        peer.destroy();
+        peer = null;
+      }
+      hostConnection = null;
+      
+      // Reset UI
+      document.getElementById('retryBtn').style.display = 'none';
+      document.getElementById('joinBtn').style.display = 'block';
+      document.getElementById('joinStatus').textContent = '';
+      document.getElementById('joinStatus').className = 'connection-status';
+      
+      // Try again
+      joinGame();
     }
 
     // START GAME (Host only)
