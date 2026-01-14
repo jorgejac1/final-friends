@@ -520,15 +520,26 @@
 
     .bar-fill {
       height: 100%;
-      transition: width 0.3s;
+      transition: width 0.5s ease-out;
     }
 
     .bar-fill.hp {
       background: linear-gradient(180deg, var(--hp-red-light) 0%, var(--hp-red) 100%);
+      box-shadow: inset 0 0 5px rgba(255,255,255,0.3);
     }
 
     .bar-fill.mp {
       background: linear-gradient(180deg, var(--mp-blue-light) 0%, var(--mp-blue) 100%);
+      box-shadow: inset 0 0 5px rgba(255,255,255,0.3);
+    }
+
+    .bar-fill.hp.low {
+      animation: lowHpPulse 1s infinite;
+    }
+
+    @keyframes lowHpPulse {
+      0%, 100% { background: linear-gradient(180deg, var(--hp-red-light) 0%, var(--hp-red) 100%); }
+      50% { background: linear-gradient(180deg, #ff0000 0%, #aa0000 100%); }
     }
 
     .stat-value {
@@ -655,62 +666,302 @@
     .log-entry.info { color: var(--text-blue); }
     .log-entry.system { color: var(--text-gold); }
 
+    /* ENHANCED ANIMATIONS */
+    @keyframes attackLunge {
+      0% { transform: translateX(0); }
+      30% { transform: translateX(-80px) scale(1.2); }
+      60% { transform: translateX(-80px) scale(1.2); }
+      100% { transform: translateX(0) scale(1); }
+    }
+
+    @keyframes enemyHit {
+      0%, 100% { transform: translateX(0); filter: brightness(1); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); filter: brightness(2); }
+      20%, 40%, 60%, 80% { transform: translateX(8px); filter: brightness(1.5); }
+    }
+
+    @keyframes spellCast {
+      0% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.3); filter: brightness(2) hue-rotate(20deg); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    @keyframes healEffect {
+      0% { filter: brightness(1); }
+      50% { filter: brightness(1.5) drop-shadow(0 0 20px #00ff88); }
+      100% { filter: brightness(1); }
+    }
+
+    @keyframes defendPulse {
+      0%, 100% { filter: drop-shadow(0 0 5px #4488ff); }
+      50% { filter: drop-shadow(0 0 20px #4488ff) drop-shadow(0 0 30px #4488ff); }
+    }
+
+    @keyframes screenShake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    @keyframes criticalHit {
+      0% { transform: scale(1) rotate(0deg); opacity: 1; }
+      25% { transform: scale(1.8) rotate(-10deg); }
+      50% { transform: scale(2.2) rotate(10deg); color: #ffcc00; }
+      75% { transform: scale(1.5) rotate(-5deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 0; transform: translateY(-60px); }
+    }
+
+    @keyframes deathSpin {
+      0% { transform: scale(1) rotate(0deg); opacity: 1; }
+      100% { transform: scale(0) rotate(720deg); opacity: 0; }
+    }
+
+    @keyframes victoryBounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-20px) rotate(-5deg); }
+      75% { transform: translateY(-20px) rotate(5deg); }
+    }
+
+    @keyframes particleRise {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-80px) scale(0.3); }
+    }
+
+    @keyframes thunderBolt {
+      0%, 100% { opacity: 0; }
+      5%, 15%, 25% { opacity: 1; background: rgba(255,255,0,0.3); }
+      10%, 20%, 30% { opacity: 0; }
+    }
+
+    @keyframes fireGlow {
+      0%, 100% { background: radial-gradient(circle, rgba(255,68,0,0) 0%, transparent 70%); }
+      50% { background: radial-gradient(circle, rgba(255,68,0,0.4) 0%, transparent 70%); }
+    }
+
+    @keyframes iceGlow {
+      0%, 100% { background: radial-gradient(circle, rgba(0,200,255,0) 0%, transparent 70%); }
+      50% { background: radial-gradient(circle, rgba(0,200,255,0.4) 0%, transparent 70%); }
+    }
+
+    @keyframes meteorShake {
+      0%, 100% { transform: translate(0, 0); }
+      10% { transform: translate(-10px, -5px); }
+      20% { transform: translate(10px, 5px); }
+      30% { transform: translate(-8px, 3px); }
+      40% { transform: translate(8px, -3px); }
+      50% { transform: translate(-5px, 5px); }
+      60% { transform: translate(5px, -5px); }
+      70% { transform: translate(-3px, 2px); }
+      80% { transform: translate(3px, -2px); }
+      90% { transform: translate(-1px, 1px); }
+    }
+
+    .attacking {
+      animation: attackLunge 0.6s ease-out !important;
+    }
+
+    .hit {
+      animation: enemyHit 0.5s ease-out !important;
+    }
+
+    .casting {
+      animation: spellCast 0.8s ease-out !important;
+    }
+
+    .healing {
+      animation: healEffect 1s ease-out !important;
+    }
+
+    .defending-anim {
+      animation: defendPulse 1.5s infinite !important;
+    }
+
+    .dying {
+      animation: deathSpin 0.8s ease-out forwards !important;
+    }
+
+    .screen-shake {
+      animation: screenShake 0.4s ease-out !important;
+    }
+
+    .victory-dance {
+      animation: victoryBounce 0.5s ease-in-out infinite !important;
+    }
+
+    /* Particle effects */
+    .particle {
+      position: absolute;
+      pointer-events: none;
+      font-size: 20px;
+      animation: particleRise 1s ease-out forwards;
+      z-index: 200;
+    }
+
+    /* Spell overlay effects */
+    .spell-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 150;
+      border-radius: 12px;
+    }
+
+    .spell-overlay.fire {
+      animation: fireGlow 0.6s ease-out;
+    }
+
+    .spell-overlay.ice {
+      animation: iceGlow 0.6s ease-out;
+    }
+
+    .spell-overlay.thunder {
+      animation: thunderBolt 0.5s ease-out;
+    }
+
+    .spell-overlay.meteor {
+      animation: meteorShake 1s ease-out;
+      background: radial-gradient(circle at top, rgba(255,100,0,0.5) 0%, transparent 60%);
+    }
+
+    /* Enhanced damage popup */
     .damage-popup {
       position: absolute;
       font-family: 'Press Start 2P', cursive;
-      font-size: 1.2rem;
-      color: var(--text-red);
-      text-shadow: 2px 2px 0 black;
+      font-size: 1.4rem;
+      color: #ff4444;
+      text-shadow: 2px 2px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 0 0 10px rgba(255,0,0,0.5);
       animation: damageFloat 1s ease-out forwards;
       pointer-events: none;
-      z-index: 100;
+      z-index: 200;
     }
 
-    .damage-popup.heal { color: var(--text-green); }
-    .damage-popup.critical { font-size: 1.5rem; color: var(--text-gold); }
+    .damage-popup.heal { 
+      color: #00ff88; 
+      text-shadow: 2px 2px 0 black, 0 0 15px #00ff88;
+    }
+    
+    .damage-popup.critical { 
+      font-size: 2rem; 
+      color: #ffcc00;
+      text-shadow: 3px 3px 0 black, 0 0 20px #ffcc00, 0 0 40px #ff8800;
+      animation: criticalHit 1.2s ease-out forwards;
+    }
+
+    .damage-popup.magic {
+      color: #cc66ff;
+      text-shadow: 2px 2px 0 black, 0 0 15px #cc66ff;
+    }
 
     @keyframes damageFloat {
       0% { opacity: 1; transform: translateY(0) scale(1); }
-      50% { transform: translateY(-25px) scale(1.2); }
-      100% { opacity: 0; transform: translateY(-50px) scale(0.8); }
+      20% { transform: translateY(-15px) scale(1.3); }
+      100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+    }
+
+    /* Enhanced turn indicator */
+    .turn-indicator.my-turn {
+      background: linear-gradient(90deg, rgba(255,215,0,0.2), rgba(255,215,0,0.1), rgba(255,215,0,0.2));
+      border: 2px solid var(--text-gold);
+      box-shadow: 0 0 20px rgba(255,215,0,0.4);
+    }
+
+    /* Enemy hover effect */
+    .enemy:not(.dead) {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .enemy:hover:not(.dead) {
+      filter: drop-shadow(0 0 15px rgba(255,50,50,0.8));
+      transform: scale(1.1) !important;
+    }
+
+    /* Active hero enhanced glow */
+    .hero.active .hero-sprite {
+      filter: drop-shadow(0 0 20px rgba(255,215,0,0.9));
+    }
+
+    .hero.active {
+      transform: translateX(-20px) scale(1.15) !important;
+    }
+
+    /* Party member card glow when active */
+    .party-member.active {
+      box-shadow: 0 0 25px rgba(255,215,0,0.5), inset 0 0 20px rgba(255,215,0,0.1);
     }
 
     .result-screen {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.95);
       flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 500;
+      animation: fadeInResult 0.5s ease-out;
+    }
+
+    @keyframes fadeInResult {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     .result-title {
       font-family: 'Press Start 2P', cursive;
       font-size: 2.5rem;
       margin-bottom: 25px;
-      animation: victoryPulse 0.5s ease-in-out infinite alternate;
     }
 
-    .result-title.victory { color: var(--text-gold); text-shadow: 0 0 30px var(--text-gold); }
-    .result-title.defeat { color: var(--text-red); text-shadow: 0 0 30px var(--text-red); }
+    .result-title.victory { 
+      color: var(--text-gold); 
+      text-shadow: 0 0 30px var(--text-gold), 0 0 60px var(--text-gold);
+      animation: victoryTitle 0.8s ease-out infinite alternate;
+    }
+    
+    .result-title.defeat { 
+      color: var(--text-red); 
+      text-shadow: 0 0 30px var(--text-red);
+      animation: defeatTitle 1s ease-in-out infinite;
+    }
 
-    @keyframes victoryPulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.05); }
+    @keyframes victoryTitle {
+      0% { transform: scale(1) rotate(-2deg); text-shadow: 0 0 30px var(--text-gold); }
+      100% { transform: scale(1.1) rotate(2deg); text-shadow: 0 0 60px var(--text-gold), 0 0 100px #ff8800; }
+    }
+
+    @keyframes defeatTitle {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.98); opacity: 0.8; }
     }
 
     .result-stats {
       font-size: 1.3rem;
       margin-bottom: 30px;
       text-align: center;
+      animation: slideUpStats 0.6s ease-out 0.3s both;
+    }
+
+    @keyframes slideUpStats {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .result-btn {
       font-family: 'Press Start 2P', cursive;
       font-size: 0.9rem;
       padding: 18px 35px;
+      animation: slideUpStats 0.6s ease-out 0.5s both;
+      transition: all 0.2s ease;
+    }
+
+    .result-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255,215,0,0.5);
+    }
       background: linear-gradient(180deg, var(--border-gold) 0%, #b8860b 100%);
       border: none;
       color: var(--bg-dark);
@@ -1080,6 +1331,8 @@
           }
         } else if (data.type === 'log') {
           logMessage(data.message, data.logType);
+        } else if (data.type === 'animation') {
+          playAnimation(data.animData);
         } else if (data.type === 'result') {
           showResult(data.victory);
         }
@@ -1108,6 +1361,66 @@
       connections.forEach(conn => {
         conn.send({ type: 'log', message, logType });
       });
+    }
+
+    function broadcastAnimation(animData) {
+      // Play animation locally
+      playAnimation(animData);
+      // Send to all guests
+      connections.forEach(conn => {
+        conn.send({ type: 'animation', animData });
+      });
+    }
+
+    function playAnimation(animData) {
+      switch(animData.type) {
+        case 'attack':
+          playAttackAnimation(animData.attackerId, animData.targetId, true);
+          setTimeout(() => {
+            showDamageNumber(animData.targetId, animData.damage, false, animData.crit, false, true);
+          }, 350);
+          break;
+        case 'spell':
+          playSpellAnimation(animData.casterId, animData.spellName, animData.targetId, animData.isAll);
+          break;
+        case 'damage':
+          showDamageNumber(animData.targetId, animData.damage, false, false, animData.isMagic, animData.isEnemy);
+          break;
+        case 'heal':
+          playHealAnimation(animData.targetId);
+          if (animData.amount > 0) {
+            setTimeout(() => {
+              showDamageNumber(animData.targetId, animData.amount, true, false, false, false);
+            }, 300);
+          }
+          break;
+        case 'defend':
+          playDefendAnimation(animData.playerId);
+          break;
+        case 'death':
+          playDeathAnimation(animData.targetId, animData.isEnemy);
+          break;
+        case 'victory':
+          playVictoryAnimation();
+          break;
+        case 'enemyAttack':
+          // Enemy attacks player
+          const enemyEl = document.getElementById(`enemy${animData.attackerId}`);
+          if (enemyEl) {
+            enemyEl.classList.add('attacking');
+            setTimeout(() => enemyEl.classList.remove('attacking'), 600);
+          }
+          setTimeout(() => {
+            const heroEl = document.getElementById(`hero${animData.targetId}`);
+            if (heroEl) {
+              heroEl.classList.add('hit');
+              shakeScreen();
+              setTimeout(() => heroEl.classList.remove('hit'), 500);
+            }
+            showDamageNumber(animData.targetId, animData.damage, false, false, false, false);
+          }, 300);
+          break;
+      }
     }
 
     function updatePlayerList() {
@@ -1503,6 +1816,10 @@
       const baseDamage = Math.max(1, enemy.atk - target.def / 2);
       const damage = target.defending ? Math.floor(baseDamage * 0.5) : Math.floor(baseDamage);
 
+      // Broadcast enemy attack animation
+      const enemyIdx = gameState.enemies.findIndex(e => e.id === enemy.id);
+      broadcastAnimation({ type: 'enemyAttack', attackerId: enemyIdx, targetId: target.id, damage: damage });
+
       target.hp = Math.max(0, target.hp - damage);
 
       // Update turn order
@@ -1512,6 +1829,7 @@
       broadcastLog(`👹 ${enemy.name} attacks ${target.name} for ${damage}!${target.defending ? ' (Blocked!)' : ''}`, 'damage');
 
       if (target.hp <= 0) {
+        broadcastAnimation({ type: 'death', targetId: target.id, isEnemy: false });
         broadcastLog(`😵 ${target.name} has fallen!`, 'damage');
       }
 
@@ -1519,7 +1837,7 @@
       setTimeout(() => {
         gameState.currentTurnIndex = (gameState.currentTurnIndex + 1) % gameState.turnOrder.length;
         processNextTurn();
-      }, 800);
+      }, 1200);
     }
 
     // Player commands
@@ -1700,10 +2018,16 @@
         const crit = Math.random() < 0.15;
         const finalDmg = crit ? Math.floor(damage * 1.5) : damage;
 
+        // Broadcast animation
+        broadcastAnimation({ type: 'attack', attackerId: action.playerId, targetId: action.targetId, damage: finalDmg, crit });
+
         target.hp = Math.max(0, target.hp - finalDmg);
         broadcastLog(`⚔️ ${player.name} attacks ${target.name} for ${finalDmg}!${crit ? ' 💥CRIT!' : ''}`, 'damage');
 
-        if (target.hp <= 0) broadcastLog(`💀 ${target.name} defeated!`, 'info');
+        if (target.hp <= 0) {
+          broadcastAnimation({ type: 'death', targetId: action.targetId, isEnemy: true });
+          broadcastLog(`💀 ${target.name} defeated!`, 'info');
+        }
 
       } else if (action.type === 'magic') {
         const spell = spells[action.spell];
@@ -1712,18 +2036,32 @@
 
         if (spell.damage) {
           if (action.targetId === -1) {
-            gameState.enemies.filter(e => e.hp > 0).forEach(e => {
+            // All enemies spell
+            broadcastAnimation({ type: 'spell', casterId: action.playerId, spellName: action.spell, targetId: -1, isAll: true });
+            
+            gameState.enemies.filter(e => e.hp > 0).forEach((e, idx) => {
               const dmg = Math.floor(spell.damage + player.mag - e.def / 3);
               e.hp = Math.max(0, e.hp - dmg);
-              if (e.hp <= 0) broadcastLog(`💀 ${e.name} defeated!`, 'info');
+              broadcastAnimation({ type: 'damage', targetId: idx, damage: dmg, isMagic: true, isEnemy: true });
+              if (e.hp <= 0) {
+                broadcastAnimation({ type: 'death', targetId: idx, isEnemy: true });
+                broadcastLog(`💀 ${e.name} defeated!`, 'info');
+              }
             });
             broadcastLog(`🔮 ${player.name} casts ${action.spell} on all enemies!`, 'magic');
           } else {
             const target = gameState.enemies[action.targetId];
             const dmg = Math.floor(spell.damage + player.mag - target.def / 3);
+            
+            broadcastAnimation({ type: 'spell', casterId: action.playerId, spellName: action.spell, targetId: action.targetId, isAll: false });
+            broadcastAnimation({ type: 'damage', targetId: action.targetId, damage: dmg, isMagic: true, isEnemy: true });
+            
             target.hp = Math.max(0, target.hp - dmg);
             broadcastLog(`🔮 ${player.name} casts ${action.spell} on ${target.name} for ${dmg}!`, 'magic');
-            if (target.hp <= 0) broadcastLog(`💀 ${target.name} defeated!`, 'info');
+            if (target.hp <= 0) {
+              broadcastAnimation({ type: 'death', targetId: action.targetId, isEnemy: true });
+              broadcastLog(`💀 ${target.name} defeated!`, 'info');
+            }
           }
         }
 
@@ -1733,12 +2071,15 @@
           target.hp += heal;
           const t = gameState.turnOrder.find(u => u.isPlayer && u.id === target.id);
           if (t) t.hp = target.hp;
+          
+          broadcastAnimation({ type: 'heal', targetId: action.targetId, amount: heal });
           broadcastLog(`💚 ${player.name} heals ${target.name} for ${heal} HP!`, 'heal');
         }
 
         if (spell.regen) {
           const target = gameState.players.find(p => p.id === action.targetId);
           target.regen = true;
+          broadcastAnimation({ type: 'heal', targetId: action.targetId, amount: 0, isRegen: true });
           broadcastLog(`✨ ${player.name} casts Regen on ${target.name}!`, 'heal');
         }
 
@@ -1770,6 +2111,7 @@
           target.hp += heal;
           const t = gameState.turnOrder.find(u => u.isPlayer && u.id === target.id);
           if (t) t.hp = target.hp;
+          broadcastAnimation({ type: 'heal', targetId: action.targetId, amount: heal });
           broadcastLog(`🧪 ${player.name} uses ${item.name} on ${target.name}! +${heal} HP`, 'heal');
         } else if (item.mp) {
           const target = gameState.players.find(p => p.id === action.targetId);
@@ -1777,32 +2119,42 @@
           target.mp += restore;
           const t = gameState.turnOrder.find(u => u.isPlayer && u.id === target.id);
           if (t) t.mp = target.mp;
+          broadcastAnimation({ type: 'heal', targetId: action.targetId, amount: restore });
           broadcastLog(`💧 ${player.name} uses ${item.name} on ${target.name}! +${restore} MP`, 'magic');
         } else if (item.revive) {
           const target = gameState.players.find(p => p.id === action.targetId);
           target.hp = Math.floor(target.maxHp * 0.25);
           const t = gameState.turnOrder.find(u => u.isPlayer && u.id === target.id);
           if (t) t.hp = target.hp;
+          broadcastAnimation({ type: 'heal', targetId: action.targetId, amount: target.hp });
           broadcastLog(`🔥 ${player.name} uses ${item.name} on ${target.name}!`, 'heal');
         }
 
       } else if (action.type === 'defend') {
         player.defending = true;
+        broadcastAnimation({ type: 'defend', playerId: action.playerId });
         broadcastLog(`🛡️ ${player.name} is defending!`, 'info');
       }
 
       broadcastState();
 
-      // Next turn
+      // Next turn - delay for animations
       setTimeout(() => {
         gameState.currentTurnIndex = (gameState.currentTurnIndex + 1) % gameState.turnOrder.length;
         processNextTurn();
-      }, 600);
+      }, 1000);
     }
 
     function showResult(victory) {
       if (isHost) {
+        if (victory) {
+          broadcastAnimation({ type: 'victory' });
+        }
         connections.forEach(conn => conn.send({ type: 'result', victory }));
+      }
+      
+      if (victory) {
+        playVictoryAnimation();
       }
 
       document.getElementById('resultScreen').style.display = 'flex';
@@ -1878,6 +2230,172 @@
       entry.textContent = msg;
       log.appendChild(entry);
       log.scrollTop = log.scrollHeight;
+    }
+
+    // ============ ANIMATION FUNCTIONS ============
+    
+    function playAttackAnimation(attackerId, targetId, isPlayer) {
+      const attacker = isPlayer ? document.getElementById(`hero${attackerId}`) : null;
+      const target = document.getElementById(`enemy${targetId}`);
+      
+      if (attacker) {
+        attacker.classList.add('attacking');
+        setTimeout(() => attacker.classList.remove('attacking'), 600);
+      }
+      
+      if (target) {
+        setTimeout(() => {
+          target.classList.add('hit');
+          shakeScreen();
+          setTimeout(() => target.classList.remove('hit'), 500);
+        }, 300);
+      }
+    }
+
+    function playSpellAnimation(casterId, spellName, targetIds, isAllEnemies) {
+      const caster = document.getElementById(`hero${casterId}`);
+      const battleScene = document.getElementById('battleScene');
+      
+      // Caster animation
+      if (caster) {
+        caster.classList.add('casting');
+        setTimeout(() => caster.classList.remove('casting'), 800);
+      }
+
+      // Spell effect overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'spell-overlay';
+      
+      let spellType = 'fire';
+      let particles = '🔥';
+      
+      if (spellName.includes('Fire')) { spellType = 'fire'; particles = '🔥'; }
+      else if (spellName.includes('Blizzard') || spellName.includes('Ice')) { spellType = 'ice'; particles = '❄️'; }
+      else if (spellName.includes('Thunder')) { spellType = 'thunder'; particles = '⚡'; }
+      else if (spellName.includes('Meteor')) { spellType = 'meteor'; particles = '☄️'; shakeScreen(true); }
+      else if (spellName.includes('Cure') || spellName.includes('Regen')) { spellType = 'heal'; particles = '✨'; }
+
+      overlay.classList.add(spellType);
+      battleScene.appendChild(overlay);
+      setTimeout(() => overlay.remove(), 1000);
+
+      // Create particles
+      setTimeout(() => {
+        const targets = isAllEnemies ? 
+          gameState.enemies.filter(e => e.hp > 0).map((e, i) => i) : 
+          (Array.isArray(targetIds) ? targetIds : [targetIds]);
+        
+        targets.forEach(tid => {
+          const target = document.getElementById(`enemy${tid}`);
+          if (target) {
+            createParticles(target, particles, 5);
+            target.classList.add('hit');
+            setTimeout(() => target.classList.remove('hit'), 500);
+          }
+        });
+      }, 400);
+    }
+
+    function playHealAnimation(targetId) {
+      const target = document.getElementById(`hero${targetId}`);
+      const partyMember = document.getElementById(`partyMember${targetId}`);
+      
+      if (target) {
+        target.classList.add('healing');
+        createParticles(target, '✨', 8);
+        setTimeout(() => target.classList.remove('healing'), 1000);
+      }
+      
+      if (partyMember) {
+        partyMember.classList.add('healing');
+        setTimeout(() => partyMember.classList.remove('healing'), 1000);
+      }
+    }
+
+    function playDefendAnimation(playerId) {
+      const hero = document.getElementById(`hero${playerId}`);
+      if (hero) {
+        hero.classList.add('defending-anim');
+        createParticles(hero, '🛡️', 3);
+      }
+    }
+
+    function playDeathAnimation(targetId, isEnemy) {
+      const target = isEnemy ? 
+        document.getElementById(`enemy${targetId}`) : 
+        document.getElementById(`hero${targetId}`);
+      
+      if (target) {
+        target.classList.add('dying');
+        createParticles(target, '💀', 5);
+      }
+    }
+
+    function playVictoryAnimation() {
+      gameState.players.forEach((p, i) => {
+        if (p.hp > 0) {
+          const hero = document.getElementById(`hero${i}`);
+          if (hero) {
+            hero.classList.add('victory-dance');
+            createParticles(hero, '🎉', 10);
+          }
+        }
+      });
+    }
+
+    function createParticles(element, emoji, count) {
+      if (!element) return;
+      
+      const rect = element.getBoundingClientRect();
+      const container = document.getElementById('battleScene');
+      const containerRect = container.getBoundingClientRect();
+      
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.textContent = emoji;
+        particle.style.left = (rect.left - containerRect.left + rect.width/2 + (Math.random() - 0.5) * 60) + 'px';
+        particle.style.top = (rect.top - containerRect.top + rect.height/2) + 'px';
+        particle.style.animationDelay = (Math.random() * 0.3) + 's';
+        container.appendChild(particle);
+        
+        setTimeout(() => particle.remove(), 1500);
+      }
+    }
+
+    function shakeScreen(intense = false) {
+      const battleScene = document.getElementById('battleScene');
+      battleScene.classList.add('screen-shake');
+      if (intense) {
+        battleScene.style.animation = 'meteorShake 0.8s ease-out';
+      }
+      setTimeout(() => {
+        battleScene.classList.remove('screen-shake');
+        battleScene.style.animation = '';
+      }, intense ? 800 : 400);
+    }
+
+    function showDamageNumber(targetId, amount, isHeal, isCrit, isMagic, isEnemy = true) {
+      const target = isEnemy ? 
+        document.getElementById(`enemy${targetId}`) : 
+        document.getElementById(`hero${targetId}`);
+      
+      if (!target) return;
+
+      const popup = document.createElement('div');
+      popup.className = 'damage-popup';
+      if (isHeal) popup.classList.add('heal');
+      if (isCrit) popup.classList.add('critical');
+      if (isMagic && !isHeal) popup.classList.add('magic');
+      
+      popup.textContent = (isHeal ? '+' : '-') + amount;
+      popup.style.left = '50%';
+      popup.style.top = '0';
+      popup.style.transform = 'translateX(-50%)';
+      target.style.position = 'relative';
+      target.appendChild(popup);
+
+      setTimeout(() => popup.remove(), 1200);
     }
 
     // Random name generator
