@@ -1059,7 +1059,8 @@
             updateStartButton();
           }
         } else if (data.type === 'action') {
-          executeAction(data);
+          console.log('Host received action:', data.action);
+          executeAction(data.action);
         }
       } else {
         // Guest receives messages from host
@@ -1073,6 +1074,7 @@
             showBattleScreen();
             renderBattle();
             updateTurn();
+            console.log('Guest received state, currentTurnIndex:', gameState.currentTurnIndex, 'myPlayerId:', myPlayerId);
           } else if (gameState.phase === 'lobby') {
             updateGuestPlayerList();
           }
@@ -1410,9 +1412,16 @@
 
     function updateTurn() {
       const currentUnit = gameState.turnOrder[gameState.currentTurnIndex];
-      if (!currentUnit) return;
+      if (!currentUnit) {
+        console.log('No current unit at index', gameState.currentTurnIndex);
+        return;
+      }
 
+      console.log('updateTurn - currentUnit:', currentUnit.name, 'id:', currentUnit.id, 'isPlayer:', currentUnit.isPlayer, 'myPlayerId:', myPlayerId);
+      
       const isMyTurn = currentUnit.isPlayer && currentUnit.id === myPlayerId;
+      console.log('isMyTurn:', isMyTurn);
+      
       const indicator = document.getElementById('yourTurnIndicator');
       indicator.style.display = isMyTurn ? 'block' : 'none';
 
@@ -1656,22 +1665,34 @@
 
     function sendAction(action) {
       action.playerId = myPlayerId;
+      console.log('Sending action:', action);
       hideSubMenu();
       enableCommands(false);
 
       if (isHost) {
         executeAction(action);
       } else {
-        hostConnection.send({ type: 'action', ...action });
+        hostConnection.send({ type: 'action', action: action });
       }
     }
 
     // Execute action (Host only)
     function executeAction(action) {
       if (!isHost) return;
+      if (!action) {
+        console.error('executeAction called with null/undefined action');
+        return;
+      }
 
+      console.log('Executing action:', action);
+      
       const player = gameState.players.find(p => p.id === action.playerId);
       const turnPlayer = gameState.turnOrder.find(u => u.isPlayer && u.id === action.playerId);
+
+      if (!player) {
+        console.error('Player not found for id:', action.playerId);
+        return;
+      }
 
       if (action.type === 'attack') {
         const target = gameState.enemies[action.targetId];
