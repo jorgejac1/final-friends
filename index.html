@@ -932,22 +932,45 @@
 
       // Create peer with room code as ID
       peer = new Peer('ff-' + roomCode, {
-        debug: 1
+        debug: 2,
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' },
+            { urls: 'stun:stun3.l.google.com:19302' },
+            { urls: 'stun:stun4.l.google.com:19302' }
+          ]
+        }
       });
 
       peer.on('open', (id) => {
         console.log('Host peer ID:', id);
         document.getElementById('hostStatus').textContent = '✅ Room created! Share the code.';
+        document.getElementById('hostStatus').className = 'connection-status status-connected';
       });
 
       peer.on('connection', (conn) => {
+        console.log('Incoming connection from:', conn.peer);
         handleNewConnection(conn);
       });
 
       peer.on('error', (err) => {
         console.error('Peer error:', err);
-        document.getElementById('hostStatus').textContent = '❌ Error: ' + err.type;
+        if (err.type === 'unavailable-id') {
+          document.getElementById('hostStatus').textContent = '❌ Room code in use. Try again.';
+          roomCode = generateRoomCode();
+          document.getElementById('roomCodeDisplay').textContent = roomCode;
+          setTimeout(() => hostGame(), 1000);
+        } else {
+          document.getElementById('hostStatus').textContent = '❌ Error: ' + err.type;
+        }
         document.getElementById('hostStatus').className = 'connection-status status-error';
+      });
+
+      peer.on('disconnected', () => {
+        console.log('Peer disconnected, reconnecting...');
+        peer.reconnect();
       });
 
       // Copy code on click
@@ -961,16 +984,24 @@
     }
 
     function handleNewConnection(conn) {
+      console.log('Setting up connection handlers for:', conn.peer);
+      
       conn.on('open', () => {
-        console.log('Player connected:', conn.peer);
+        console.log('Connection opened with:', conn.peer);
         connections.push(conn);
 
         conn.on('data', (data) => {
+          console.log('Received data:', data);
           handleMessage(conn, data);
         });
 
         conn.on('close', () => {
+          console.log('Connection closed:', conn.peer);
           handleDisconnect(conn);
+        });
+
+        conn.on('error', (err) => {
+          console.error('Connection error:', err);
         });
       });
     }
@@ -1104,13 +1135,38 @@
       document.getElementById('joinStatus').className = 'connection-status status-connecting';
 
       peer = new Peer({
-        debug: 1
+        debug: 2,
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' },
+            { urls: 'stun:stun3.l.google.com:19302' },
+            { urls: 'stun:stun4.l.google.com:19302' }
+          ]
+        }
       });
 
       peer.on('open', (id) => {
-        hostConnection = peer.connect('ff-' + roomCode, { reliable: true });
+        console.log('My peer ID:', id);
+        document.getElementById('joinStatus').textContent = '🔄 Found server, connecting to room...';
+        
+        hostConnection = peer.connect('ff-' + roomCode, { 
+          reliable: true,
+          serialization: 'json'
+        });
+
+        // Connection timeout
+        const connectionTimeout = setTimeout(() => {
+          if (!hostConnection || !hostConnection.open) {
+            document.getElementById('joinStatus').textContent = '❌ Connection timed out. Is the host still in the room?';
+            document.getElementById('joinStatus').className = 'connection-status status-error';
+          }
+        }, 10000);
 
         hostConnection.on('open', () => {
+          clearTimeout(connectionTimeout);
+          console.log('Connected to host!');
           document.getElementById('joinStatus').textContent = '✅ Connected!';
           document.getElementById('joinStatus').className = 'connection-status status-connected';
 
@@ -1127,23 +1183,32 @@
         });
 
         hostConnection.on('close', () => {
+          clearTimeout(connectionTimeout);
           document.getElementById('guestStatus').textContent = '❌ Disconnected from host';
           document.getElementById('guestStatus').className = 'connection-status status-error';
         });
 
         hostConnection.on('error', (err) => {
-          document.getElementById('joinStatus').textContent = '❌ Could not connect: ' + err;
+          clearTimeout(connectionTimeout);
+          console.error('Connection error:', err);
+          document.getElementById('joinStatus').textContent = '❌ Connection failed: ' + err;
           document.getElementById('joinStatus').className = 'connection-status status-error';
         });
       });
 
       peer.on('error', (err) => {
+        console.error('Peer error:', err);
         if (err.type === 'peer-unavailable') {
-          document.getElementById('joinStatus').textContent = '❌ Room not found. Check the code!';
+          document.getElementById('joinStatus').textContent = '❌ Room not found. Check the code and make sure host is waiting!';
         } else {
           document.getElementById('joinStatus').textContent = '❌ Error: ' + err.type;
         }
         document.getElementById('joinStatus').className = 'connection-status status-error';
+      });
+
+      peer.on('disconnected', () => {
+        console.log('Disconnected from server, reconnecting...');
+        peer.reconnect();
       });
     }
 
